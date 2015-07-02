@@ -35,8 +35,9 @@
 		<!-- Scripts placed at the end of the document so the page loads faster -->
 		<script src="/bower_components/jquery/dist/jquery.min.js"></script>
 		<script src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfQxgWt-LSZcEmTEN8581Uq9SzZHnpuys&sensor=true"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA3uyTjSXVcjRDKenns5H-2FWvGIvMqRzY&sensor=true"></script>
 		<script>
+		var map;
 		function initialize_gmaps() {
 		    // initialize new google maps LatLng object
 		    var myLatlng = new google.maps.LatLng(40.705786,-74.007672);
@@ -50,46 +51,33 @@
 		    // get the maps div's HTML obj
 		    var map_canvas_obj = document.getElementById("map-canvas");
 		    // initialize a new Google Map with the options
-		    var map = new google.maps.Map(map_canvas_obj, mapOptions);
-		    // Add the marker to the map
-		    var marker = new google.maps.Marker({
-		        position: myLatlng,
-		        title:"Hello World!"
-		    });
-		    
-		    // draw some locations
-		    var hotelLocation = [40.705137, -74.007624];
-		    var restaurantLocations = [
-		        [40.705137, -74.013940],
-		        [40.708475, -74.010846]
-		    ];
-		    var thingToDoLocations = [
-		        [40.716291, -73.995315],
-		        [40.707119, -74.003602]
-		    ];
-
-		    function drawLocation (location, opts) {
-		        if (typeof opts !== 'object') {
-		            opts = {}
-		        }
-		        opts.position = new google.maps.LatLng(location[0], location[1]);
-		        opts.map = map;
-		        var marker = new google.maps.Marker(opts);
-		    }
-		    drawLocation(hotelLocation, {
-		        icon: '/images/lodging_0star.png'
-		    });
-		    restaurantLocations.forEach(function (loc) {
-		        drawLocation(loc, {
-		            icon: '/images/restaurant.png'
-		        });
-		    });
-		    thingToDoLocations.forEach(function (loc) {
-		        drawLocation(loc, {
-		            icon: '/images/star-3.png'
-		        });
-		    });
+		    map = new google.maps.Map(map_canvas_obj, mapOptions);
 		}
+
+	    function drawLocation (location, opts) {
+	        if (typeof opts !== 'object') {
+	            opts = {}
+	        }
+	        opts.position = new google.maps.LatLng(location[0], location[1]);
+	        opts.map = map;
+	        var marker = new google.maps.Marker(opts);
+	        console.log(marker);
+	    }
+	    // hotelLocations.forEach(function (loc) {
+	    // 	drawLocation(loc, {
+	    //     	icon: '/images/lodging_0star.png'
+	    //     });
+	    // });
+	    // restaurantLocations.forEach(function (loc) {
+	    //     drawLocation(loc, {
+	    //         icon: '/images/restaurant.png'
+	    //     });
+	    // });
+	    // thingToDoLocations.forEach(function (loc) {
+	    //     drawLocation(loc, {
+	    //         icon: '/images/star-3.png'
+	    //     });
+	    // });
 
 		$(document).ready(function() {
 		    initialize_gmaps();
@@ -190,5 +178,14 @@
 		    {}
 		]
 		</script>
+		<script>
+			{% autoescape false %}
+			var all_hotels = {{ all_hotels | json }};
+			var all_restaurants = {{ all_restaurants | json }};
+			var all_things_to_do = {{ all_things_to_do | json }};
+			var all_itin_items = {hotels: all_hotels, restaurants: all_restaurants, things: all_things_to_do};
+			{% endautoescape %}
+		</script>
+		<script type="text/javascript" src="/js/itineraryUI.js">Must use JavaScript</script>
 	</body>
 </html>
