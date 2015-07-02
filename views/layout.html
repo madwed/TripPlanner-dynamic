@@ -54,16 +54,7 @@
 		    map = new google.maps.Map(map_canvas_obj, mapOptions);
 		}
 
-	    function drawLocation (location, opts) {
-	        if (typeof opts !== 'object') {
-	            opts = {}
-	        }
-	        opts.position = new google.maps.LatLng(location[0], location[1]);
-	        opts.map = map;
-	        var marker = new google.maps.Marker(opts);
-	        console.log(marker);
-	    }
-	    // hotelLocations.forEach(function (loc) {
+	    	    // hotelLocations.forEach(function (loc) {
 	    // 	drawLocation(loc, {
 	    //     	icon: '/images/lodging_0star.png'
 	    //     });
