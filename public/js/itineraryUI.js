@@ -61,7 +61,6 @@ $("#add-day-button").click(function(){
 		//Add a button to the UI
 		var $newButton = $('<button class="btn btn-circle day-btn">' + dayNumber + '</button>');
 		$newButton.insertBefore("#add-day-button");
-
 		dayClickHandler($newButton);
 	}
 });
@@ -124,7 +123,7 @@ function updateItinDay (){
 //Add an item to an itinerary category
 function addToCategory(itemName, category){
 	//HTML for an item
-	var itinHTML = '<div class="itinerary-item"><span class="title">' + itemName + '</span><button class="btn btn-xs btn-danger remove btn-circle">x</button></div>'
+	var itinHTML = '<div class="itinerary-item"><span class="title">' + itemName + '</span><button class="btn btn-xs btn-danger remove btn-circle">x</button></div>';
 	var categoryId = "#" + category;
 	var categoryKey = category + "s";
 	//The array from the model for the category array of the current day
@@ -143,7 +142,7 @@ function addToCategory(itemName, category){
 
 function drawLocation (location, opts) {
     if (typeof opts !== 'object') {
-        opts = {}
+        opts = {};
     }
     opts.position = new google.maps.LatLng(location[0], location[1]);
     opts.map = map;
@@ -151,7 +150,7 @@ function drawLocation (location, opts) {
     return marker;
 }
 
-function clearMap (){
+function clearMap () {
 	itinCategories.forEach(function(category){
 		days[currentDay][category + "s"].forEach(function(item){
 			item.marker.setMap(null);
