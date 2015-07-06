@@ -10,6 +10,12 @@ var maxItinItems = {
 	"thing": 3
 };
 
+var mapIcons = {
+	"hotel": "/images/hotel.png",
+	"restaurant": "/images/restaurant.png",
+	"thing": "/images/thing_to_do.png"
+}
+
 //Model
 var currentDay = 0;
 function newDay () {
@@ -19,7 +25,10 @@ function newDay () {
 		things: []
 	};
 }
-days = [newDay()];
+var days = [newDay()];
+var base = new google.maps.LatLngBounds(new google.maps.LatLng(40.689249,-74.0445), new google.maps.LatLng(40.838252, -73.856609));
+map.fitBounds(base);
+var extended = new google.maps.LatLngBounds();
 
 //Adding click handlers for category selectors
 //Adds items to a day's itinerary and that day's model-representation
@@ -36,14 +45,20 @@ itinCategories.forEach(function(category){
 		var addedItem = all_itin_items[categoryKey].reduce(function(foundItem, nextItem){
 			return nextItem.name === itemName ? nextItem : foundItem;
 		}, null);
-		var currentMarker = drawLocation(addedItem.place[0].location);
-		dayItemModel.push({marker: currentMarker, name: itemName});
+		// Draw marker to map
+		var currentMarker = drawLocation(addedItem.place[0].location, { icon: mapIcons[category] });
+		// Apply new bounds to the map
+		
 		//If the array is at the max length, replace the last item
 		if($(categoryId).children().length === maxItinItems[category]){
+			//remove item from the itinerary
 			$(categoryId).children(":last-child").remove();
+			//remove the marker from the map
 			dayItemModel[dayItemModel.length - 1].marker.setMap(null);
+			//remove the item from the model
 			dayItemModel.splice(-1,1);
 		}
+		dayItemModel.push({marker: currentMarker, name: itemName});
 		addToCategory(itemName, category);
 	});
 });
@@ -130,12 +145,18 @@ function addToCategory(itemName, category){
 	var dayItemModel = days[currentDay][categoryKey];
 	//Add the HTML under its category
 	$(categoryId).append(itinHTML);
+	fitToBounds();
 	//Add a click handler for the button of the category being added to the view
 	$(categoryId).children(":last-child").children("button").click(function(event){
 		var itemIndex = $(this).parent().index();
-		dayItemModel[itemIndex].marker.setMap(null);
+		var thisMarker = dayItemModel[itemIndex].marker;
+		//Remove marker from map
+		thisMarker.setMap(null);
+		//Remove item from model
 		dayItemModel.splice(itemIndex, 1);
+		//Remove item from itin
 		$(event.currentTarget).parent().remove();
+		fitToBounds();	
 	});
 }
 
@@ -151,11 +172,40 @@ function drawLocation (location, opts) {
 }
 
 function clearMap () {
+	//Set the bounds to the default view
+	map.fitBounds(base);
+	//Remove all markers from the map
 	itinCategories.forEach(function(category){
 		days[currentDay][category + "s"].forEach(function(item){
 			item.marker.setMap(null);
 		});
 	});
+}
+
+function fitToBounds () {
+	var isThereAnythingOnMap = false;
+	var today = days[currentDay];
+	//Reset the bounds object
+	extended = new google.maps.LatLngBounds();
+	//Fit all the current itin items on the map
+	Object.keys(today).forEach(function(category){
+		today[category].forEach(function(item){
+			var itemMarker = item.marker;
+			itemMarker.setMap(map);
+			extended.extend(itemMarker.position);
+			isThereAnythingOnMap = true;
+		});
+	});
+	if(isThereAnythingOnMap){
+		map.fitBounds(extended);
+		//Check how zoomed in the bounds are and set to a min zoom if it's too zoomed
+		if(map.getZoom() > 17){
+			map.setZoom(17);
+		}
+	}else{
+		//If there is nothing on the map set the bounds to the default view
+		map.fitBounds(base);
+	}
 }
 
 
